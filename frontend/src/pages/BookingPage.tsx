@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 
 type BookingForm = {
   serviceId: string;
+  customStyle: string;
   appointmentDate: string;
   startTime: string;
   customerName: string;
@@ -20,6 +21,7 @@ type BookingForm = {
 };
 
 const today = new Date().toISOString().slice(0, 10);
+const OTHER_SERVICE_VALUE = "__other__";
 
 export const BookingPage = () => {
   const [params] = useSearchParams();
@@ -44,16 +46,20 @@ export const BookingPage = () => {
 
   const serviceId = watch("serviceId");
   const appointmentDate = watch("appointmentDate");
-  const selectedService = useMemo(() => services.find((service) => service.id === serviceId), [serviceId, services]);
+  const customStyleService = useMemo(
+    () => services.find((service) => service.slug === "signature-natural-hairstyling") ?? services.find((service) => service.category === "hair") ?? services[0],
+    [services]
+  );
+  const effectiveServiceId = serviceId === OTHER_SERVICE_VALUE ? customStyleService?.id ?? "" : serviceId;
 
   const {
     data: slots = [],
     isFetching,
     isError: availabilityError
   } = useQuery({
-    queryKey: ["availability", serviceId, appointmentDate],
-    queryFn: () => fetchAvailability(serviceId, appointmentDate),
-    enabled: Boolean(serviceId && appointmentDate)
+    queryKey: ["availability", effectiveServiceId, appointmentDate],
+    queryFn: () => fetchAvailability(effectiveServiceId, appointmentDate),
+    enabled: Boolean(effectiveServiceId && appointmentDate)
   });
 
   const bookingMutation = useMutation({
@@ -63,6 +69,7 @@ export const BookingPage = () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       reset({
         serviceId,
+        customStyle: "",
         appointmentDate,
         customerName: user?.fullName ?? "",
         customerPhone: user?.phone ?? "",
@@ -75,7 +82,19 @@ export const BookingPage = () => {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    await bookingMutation.mutateAsync(values);
+    const isCustomStyle = values.serviceId === OTHER_SERVICE_VALUE;
+    if (isCustomStyle && !customStyleService) {
+      return;
+    }
+
+    const customStyleNote = isCustomStyle ? `Custom style: ${values.customStyle.trim()}` : "";
+    const notes = [customStyleNote, values.notes?.trim()].filter(Boolean).join("\n\n");
+
+    await bookingMutation.mutateAsync({
+      ...values,
+      serviceId: isCustomStyle ? customStyleService!.id : values.serviceId,
+      notes
+    });
   });
 
   return (
@@ -110,7 +129,21 @@ export const BookingPage = () => {
                 {service.name}
               </option>
             ))}
+            {services.length > 0 ? <option value={OTHER_SERVICE_VALUE}>Others - describe your custom hairstyle</option> : null}
           </select>
+          {serviceId === OTHER_SERVICE_VALUE ? (
+            <>
+              <label className="field-label">Custom hairstyle</label>
+              <input
+                className="field-input"
+                placeholder="Describe the hairstyle you want"
+                {...register("customStyle", { required: serviceId === OTHER_SERVICE_VALUE })}
+              />
+              <p className="mt-2 text-sm text-ink/60">
+                We will use the general hairstyle duration to show available slots, then review your custom style request.
+              </p>
+            </>
+          ) : null}
           {servicesError ? (
             <p className="mt-3 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">
               {axios.isAxiosError(servicesFetchError)
@@ -126,7 +159,7 @@ export const BookingPage = () => {
             <div className="grid gap-2 sm:grid-cols-2">
               {isFetching ? <p className="text-sm text-ink/60">Checking availability...</p> : null}
               {availabilityError ? <p className="text-sm font-semibold text-rosewood">Availability could not load. Please choose the service again or refresh.</p> : null}
-              {!isFetching && serviceId && slots.length === 0 ? <p className="text-sm text-rosewood">No available slots for this date.</p> : null}
+              {!isFetching && effectiveServiceId && slots.length === 0 ? <p className="text-sm text-rosewood">No available slots for this date.</p> : null}
               {slots.map((slot) => (
                 <label key={slot.startTime} className="cursor-pointer rounded-lg border border-ink/10 p-3 text-sm font-semibold has-[:checked]:border-rosewood has-[:checked]:bg-pearl">
                   <input className="sr-only" type="radio" value={slot.startTime} {...register("startTime", { required: true })} onChange={() => setValue("startTime", slot.startTime)} />
