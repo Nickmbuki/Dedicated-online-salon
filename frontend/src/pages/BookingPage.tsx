@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { useSearchParams, Link } from "react-router-dom";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
 import { createBooking, fetchAvailability, fetchServices } from "../api/services";
@@ -25,7 +26,12 @@ export const BookingPage = () => {
   const selectedFromUrl = params.get("service") ?? "";
   const { user, token } = useAuth();
   const queryClient = useQueryClient();
-  const { data: services = [] } = useQuery({ queryKey: ["services"], queryFn: fetchServices });
+  const {
+    data: services = [],
+    isLoading: servicesLoading,
+    isError: servicesError,
+    error: servicesFetchError
+  } = useQuery({ queryKey: ["services"], queryFn: fetchServices });
   const { register, handleSubmit, watch, setValue, reset } = useForm<BookingForm>({
     defaultValues: {
       serviceId: selectedFromUrl,
@@ -40,7 +46,11 @@ export const BookingPage = () => {
   const appointmentDate = watch("appointmentDate");
   const selectedService = useMemo(() => services.find((service) => service.id === serviceId), [serviceId, services]);
 
-  const { data: slots = [], isFetching } = useQuery({
+  const {
+    data: slots = [],
+    isFetching,
+    isError: availabilityError
+  } = useQuery({
     queryKey: ["availability", serviceId, appointmentDate],
     queryFn: () => fetchAvailability(serviceId, appointmentDate),
     enabled: Boolean(serviceId && appointmentDate)
@@ -93,14 +103,21 @@ export const BookingPage = () => {
             </div>
           ) : null}
           <label className="field-label">Service</label>
-          <select className="field-input" {...register("serviceId", { required: true })}>
-            <option value="">Select a service</option>
+          <select className="field-input" {...register("serviceId", { required: true })} disabled={servicesLoading || servicesError}>
+            <option value="">{servicesLoading ? "Loading services..." : servicesError ? "Services unavailable" : "Select a service"}</option>
             {services.map((service) => (
               <option key={service.id} value={service.id}>
                 {service.name}
               </option>
             ))}
           </select>
+          {servicesError ? (
+            <p className="mt-3 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">
+              {axios.isAxiosError(servicesFetchError)
+                ? servicesFetchError.response?.data?.message ?? "Services could not load. Confirm the frontend VITE_API_URL points to the Railway backend /api URL."
+                : "Services could not load. Please try again."}
+            </p>
+          ) : null}
           <label className="field-label">Date</label>
           <input className="field-input" type="date" min={today} {...register("appointmentDate", { required: true })} />
 
@@ -108,6 +125,7 @@ export const BookingPage = () => {
             <p className="field-label">Available slots</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {isFetching ? <p className="text-sm text-ink/60">Checking availability...</p> : null}
+              {availabilityError ? <p className="text-sm font-semibold text-rosewood">Availability could not load. Please choose the service again or refresh.</p> : null}
               {!isFetching && serviceId && slots.length === 0 ? <p className="text-sm text-rosewood">No available slots for this date.</p> : null}
               {slots.map((slot) => (
                 <label key={slot.startTime} className="cursor-pointer rounded-lg border border-ink/10 p-3 text-sm font-semibold has-[:checked]:border-rosewood has-[:checked]:bg-pearl">

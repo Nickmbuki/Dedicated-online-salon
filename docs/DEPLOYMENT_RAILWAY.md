@@ -29,6 +29,8 @@ SLOT_DURATION_MINUTES=60
 VITE_API_URL=https://your-backend.up.railway.app/api
 ```
 
+`VITE_API_URL` must be the backend public URL ending in `/api`. If it is missing or points to the frontend service, login and service dropdown loading will fail.
+
 ## Commands
 
 Backend:

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
 import { forgotPasswordRequest } from "../api/services";
 import { PageTransition } from "../components/PageTransition";
@@ -17,6 +18,7 @@ type AuthForm = {
 export const AuthPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">("login");
   const [resetTokenHint, setResetTokenHint] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { register: signUp, login, resetPassword, token, isLoading } = useAuth();
   const navigate = useNavigate();
   const { register, handleSubmit, formState } = useForm<AuthForm>();
@@ -33,17 +35,25 @@ export const AuthPage = () => {
   }
 
   const onSubmit = handleSubmit(async (values) => {
-    if (mode === "login") {
-      await login({ email: values.email, password: values.password });
-      navigate("/dashboard");
-    } else if (mode === "register") {
-      await signUp(values);
-      navigate("/dashboard");
-    } else if (mode === "forgot") {
-      await forgotPasswordMutation.mutateAsync({ email: values.email });
-    } else {
-      await resetPassword({ token: values.resetToken, password: values.password });
-      navigate("/dashboard");
+    setAuthError(null);
+    try {
+      if (mode === "login") {
+        await login({ email: values.email, password: values.password });
+        navigate("/dashboard");
+      } else if (mode === "register") {
+        await signUp(values);
+        navigate("/dashboard");
+      } else if (mode === "forgot") {
+        await forgotPasswordMutation.mutateAsync({ email: values.email });
+      } else {
+        await resetPassword({ token: values.resetToken, password: values.password });
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message ?? "The server is not responding. Check the backend Railway URL and try again."
+        : "Something went wrong. Please try again.";
+      setAuthError(message);
     }
   });
 
@@ -93,8 +103,17 @@ export const AuthPage = () => {
             </>
           ) : null}
           {formState.errors.password ? <p className="mt-2 text-sm text-rosewood">Password must be at least 8 characters.</p> : null}
-          <button className="mt-6 w-full rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain disabled:opacity-50" type="submit" disabled={isLoading}>
-            {mode === "login" ? "Login" : mode === "register" ? "Create account" : mode === "forgot" ? "Send reset instructions" : "Reset password"}
+          {authError ? <p className="mt-4 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">{authError}</p> : null}
+          <button className="mt-6 w-full rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain disabled:opacity-50" type="submit" disabled={isLoading || forgotPasswordMutation.isPending}>
+            {isLoading || forgotPasswordMutation.isPending
+              ? "Please wait..."
+              : mode === "login"
+                ? "Login"
+                : mode === "register"
+                  ? "Create account"
+                  : mode === "forgot"
+                    ? "Send reset instructions"
+                    : "Reset password"}
           </button>
           <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm font-semibold text-rosewood">
             {mode !== "forgot" ? (
