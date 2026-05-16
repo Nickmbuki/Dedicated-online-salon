@@ -4,52 +4,52 @@ import { Link } from "react-router-dom";
 import { PageTransition } from "../components/PageTransition";
 import { ShareButton } from "../components/ShareButton";
 
-const heroImage = "https://images.unsplash.com/photo-1672622934288-08b77766e7e3?auto=format&fit=crop&w=1800&q=88";
+const heroImage = "https://images.unsplash.com/photo-1672622934288-08b77766e7e3?auto=format&fit=crop&w=1100&q=72";
 
 const hairstylePhotos = [
   {
     label: "Kenyan braids with a polished finish",
-    src: "https://images.unsplash.com/photo-1762522929454-ee9a3c765f59?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1762522929454-ee9a3c765f59?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Elegant braided home styling",
-    src: "https://images.unsplash.com/photo-1606415918835-88d0614e75ad?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1606415918835-88d0614e75ad?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "African protective hairstyle",
-    src: "https://images.unsplash.com/photo-1527203561188-dae1bc1a417f?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1527203561188-dae1bc1a417f?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Soft glam braids for events",
-    src: "https://images.unsplash.com/photo-1572955304332-bf714bd49add?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1572955304332-bf714bd49add?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Beautiful African locs and styling",
-    src: "https://images.unsplash.com/photo-1624823574478-acf031dec181?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1624823574478-acf031dec181?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Refined home salon hairstyle",
-    src: "https://images.unsplash.com/photo-1616166183781-0fdd2ef83374?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1616166183781-0fdd2ef83374?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Statement braids with luxury finish",
-    src: "https://images.unsplash.com/photo-1613099084406-4b9140fc780a?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1613099084406-4b9140fc780a?auto=format&fit=crop&w=520&q=72"
   },
   {
     label: "Neat protective style for confidence",
-    src: "https://images.unsplash.com/photo-1535588706069-af8f2d837332?auto=format&fit=crop&w=900&q=88"
+    src: "https://images.unsplash.com/photo-1535588706069-af8f2d837332?auto=format&fit=crop&w=520&q=72"
   }
 ];
 
 const hairStylesProvided = [
-  { name: "African plaiting", src: "https://images.unsplash.com/photo-1684200757007-a3af11299189?auto=format&fit=crop&w=700&q=88" },
-  { name: "Box braids", src: "https://images.unsplash.com/photo-1662991859083-86e0b45208b0?auto=format&fit=crop&w=700&q=88" },
-  { name: "Knotless braids", src: "https://images.unsplash.com/photo-1572955304332-bf714bd49add?auto=format&fit=crop&w=700&q=88" },
-  { name: "Cornrows", src: "https://images.unsplash.com/photo-1606415918835-88d0614e75ad?auto=format&fit=crop&w=700&q=88" },
-  { name: "Twists", src: "https://images.unsplash.com/photo-1527203561188-dae1bc1a417f?auto=format&fit=crop&w=700&q=88" },
-  { name: "Loc styling", src: "https://images.unsplash.com/photo-1624823574478-acf031dec181?auto=format&fit=crop&w=700&q=88" },
-  { name: "Natural hair styling", src: "https://images.unsplash.com/photo-1535588706069-af8f2d837332?auto=format&fit=crop&w=700&q=88" },
-  { name: "Wedding hairstyles", src: "https://images.unsplash.com/photo-1672622934288-08b77766e7e3?auto=format&fit=crop&w=700&q=88" }
+  { name: "African plaiting", src: "https://images.unsplash.com/photo-1684200757007-a3af11299189?auto=format&fit=crop&w=440&q=72" },
+  { name: "Box braids", src: "https://images.unsplash.com/photo-1662991859083-86e0b45208b0?auto=format&fit=crop&w=440&q=72" },
+  { name: "Knotless braids", src: "https://images.unsplash.com/photo-1572955304332-bf714bd49add?auto=format&fit=crop&w=440&q=72" },
+  { name: "Cornrows", src: "https://images.unsplash.com/photo-1606415918835-88d0614e75ad?auto=format&fit=crop&w=440&q=72" },
+  { name: "Twists", src: "https://images.unsplash.com/photo-1527203561188-dae1bc1a417f?auto=format&fit=crop&w=440&q=72" },
+  { name: "Loc styling", src: "https://images.unsplash.com/photo-1624823574478-acf031dec181?auto=format&fit=crop&w=440&q=72" },
+  { name: "Natural hair styling", src: "https://images.unsplash.com/photo-1535588706069-af8f2d837332?auto=format&fit=crop&w=440&q=72" },
+  { name: "Wedding hairstyles", src: "https://images.unsplash.com/photo-1672622934288-08b77766e7e3?auto=format&fit=crop&w=440&q=72" }
 ];
 
 const testimonials = [
@@ -64,9 +64,9 @@ const testimonials = [
 export const HomePage = () => (
   <PageTransition>
     <section className="relative overflow-hidden">
-      <img className="absolute inset-0 h-full w-full object-cover object-center" src={heroImage} alt="Close-up of elegant braided hairstyle" />
+      <img className="absolute inset-0 h-full w-full object-cover object-center" src={heroImage} alt="Close-up of elegant braided hairstyle" fetchPriority="high" />
       <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-rosewood/64 to-rosewood/30" />
-      <div className="relative mx-auto grid min-h-[78vh] max-w-7xl items-start gap-8 px-4 pb-10 pt-8 sm:px-5 sm:pb-14 sm:pt-12 lg:grid-cols-[1fr_0.95fr]">
+      <div className="relative mx-auto grid min-h-[70vh] max-w-7xl items-start gap-8 px-4 pb-10 pt-7 sm:px-5 sm:pb-14 sm:pt-12 lg:min-h-[78vh] lg:grid-cols-[1fr_0.95fr]">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-3xl text-white">
           <p className="inline-flex max-w-full items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-champagne backdrop-blur sm:text-sm sm:tracking-[0.18em]">
             <Home size={16} /> Door-to-door online salon
@@ -85,7 +85,7 @@ export const HomePage = () => (
             <ShareButton />
           </div>
         </motion.div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-2">
+        <div className="hidden grid-cols-2 gap-3 sm:grid sm:grid-cols-3 sm:gap-4 lg:grid-cols-2">
           {hairstylePhotos.slice(0, 6).map((image, index) => (
             <motion.figure
               key={image.label}

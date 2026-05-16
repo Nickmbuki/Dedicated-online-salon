@@ -114,7 +114,7 @@ export const BookingPage = () => {
           {servicesError ? (
             <p className="mt-3 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">
               {axios.isAxiosError(servicesFetchError)
-                ? servicesFetchError.response?.data?.message ?? "Services could not load. Confirm the frontend VITE_API_URL points to the Railway backend /api URL."
+                ? servicesFetchError.response?.data?.message ?? "Services could not load. Confirm the backend Railway service is deployed, awake, and has CLIENT_ORIGIN set to this frontend domain."
                 : "Services could not load. Please try again."}
             </p>
           ) : null}

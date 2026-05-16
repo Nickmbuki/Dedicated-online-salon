@@ -51,7 +51,7 @@ export const AuthPage = () => {
       }
     } catch (error) {
       const message = axios.isAxiosError(error)
-        ? error.response?.data?.message ?? "The server is not responding. Check the backend Railway URL and try again."
+        ? error.response?.data?.message ?? "The server is not responding yet. Please confirm the backend Railway service is deployed and awake."
         : "Something went wrong. Please try again.";
       setAuthError(message);
     }
