@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, BadgeCheck, CalendarCheck, HeartHandshake, Home, ShieldCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarCheck, HeartHandshake, Home, MessageCircle, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PageTransition } from "../components/PageTransition";
 import { ShareButton } from "../components/ShareButton";
@@ -83,6 +83,21 @@ export const HomePage = () => (
               View gallery
             </Link>
             <ShareButton />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <a
+              className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:translate-y-[-1px] hover:bg-[#22c35b]"
+              href="https://wa.me/254726432210"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Chat with Elegant Beauty Style Suite on WhatsApp"
+            >
+              <MessageCircle size={17} />
+              WhatsApp
+            </a>
+            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur">
+              0726432210
+            </span>
           </div>
         </motion.div>
         <div className="hidden grid-cols-2 gap-3 sm:grid sm:grid-cols-3 sm:gap-4 lg:grid-cols-2">
