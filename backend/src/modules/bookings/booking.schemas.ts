@@ -19,6 +19,18 @@ export const createBookingSchema = z.object({
   address: z.string().max(300).optional()
 });
 
+export const guestBookingSchema = createBookingSchema.extend({
+  password: z.string().min(8).max(100)
+});
+
+export const updateBookingSchema = z.object({
+  serviceId: z.string().uuid().optional(),
+  appointmentDate: isoDateSchema.optional(),
+  startTime: timeSchema.optional(),
+  notes: z.string().max(1000).optional().nullable(),
+  address: z.string().max(300).optional().nullable()
+});
+
 export const updateBookingStatusSchema = z.object({
   status: z.enum(["pending", "confirmed", "cancelled", "completed"])
 });

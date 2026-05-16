@@ -3,6 +3,7 @@ import { CalendarCheck, Menu, Sparkles, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { InstallPrompt } from "../components/InstallPrompt";
+import { ChatbotWidget } from "../components/ChatbotWidget";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -97,8 +98,8 @@ export const AppLayout = () => {
           </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-champagne">Contact</p>
-            <p className="mt-3 text-sm text-porcelain/75">0726432210</p>
-            <p className="text-sm text-porcelain/75">0108501768</p>
+            <a className="mt-3 block text-sm text-porcelain/75 transition hover:text-white" href="tel:0726432210">0726432210</a>
+            <a className="block text-sm text-porcelain/75 transition hover:text-white" href="tel:0108501768">0108501768</a>
             <p className="text-sm text-porcelain/75">lydiahm214@gmail.com</p>
           </div>
           <div>
@@ -108,6 +109,7 @@ export const AppLayout = () => {
         </div>
       </footer>
       <InstallPrompt />
+      <ChatbotWidget />
     </div>
   );
 };

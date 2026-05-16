@@ -26,6 +26,14 @@ export const bookingStatusEnum = pgEnum("booking_status", [
   "cancelled",
   "completed"
 ]);
+export const supportThreadSourceEnum = pgEnum("support_thread_source", [
+  "customer_message",
+  "chatbot",
+  "contact_form",
+  "booking"
+]);
+export const supportThreadStatusEnum = pgEnum("support_thread_status", ["open", "closed"]);
+export const supportMessageSenderEnum = pgEnum("support_message_sender", ["customer", "admin", "bot"]);
 
 export const users = pgTable(
   "users",
@@ -97,6 +105,36 @@ export const passwordResetTokens = pgTable(
   })
 );
 
+export const supportThreads = pgTable("support_threads", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  subject: text("subject").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  source: supportThreadSourceEnum("source").notNull().default("customer_message"),
+  status: supportThreadStatusEnum("status").notNull().default("open"),
+  lastMessageAt: timestamp("last_message_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const supportMessages = pgTable("support_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  threadId: uuid("thread_id")
+    .notNull()
+    .references(() => supportThreads.id, { onDelete: "cascade" }),
+  senderRole: supportMessageSenderEnum("sender_role").notNull(),
+  senderName: text("sender_name").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+export const supportThreadWithMessages = {
+  thread: supportThreads,
+  message: supportMessages
+};
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Service = typeof services.$inferSelect;
@@ -104,3 +142,5 @@ export type NewService = typeof services.$inferInsert;
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type SupportThread = typeof supportThreads.$inferSelect;
+export type SupportMessage = typeof supportMessages.$inferSelect;

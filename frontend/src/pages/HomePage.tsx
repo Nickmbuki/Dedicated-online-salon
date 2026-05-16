@@ -95,9 +95,12 @@ export const HomePage = () => (
               <MessageCircle size={17} />
               WhatsApp
             </a>
-            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur">
+            <a
+              className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/18"
+              href="tel:0726432210"
+            >
               0726432210
-            </span>
+            </a>
           </div>
         </motion.div>
         <div className="hidden grid-cols-2 gap-3 sm:grid sm:grid-cols-3 sm:gap-4 lg:grid-cols-2">

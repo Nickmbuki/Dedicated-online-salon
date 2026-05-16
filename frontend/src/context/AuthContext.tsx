@@ -10,6 +10,7 @@ type AuthContextValue = {
   login: (payload: { email: string; password: string }) => Promise<void>;
   register: (payload: { fullName: string; email: string; phone?: string; password: string }) => Promise<void>;
   resetPassword: (payload: { token: string; password: string }) => Promise<void>;
+  setSession: (payload: { user: User; token: string }) => void;
   logout: () => void;
 };
 
@@ -77,6 +78,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
       resetPassword: async (payload) => {
         await resetPasswordMutation.mutateAsync(payload);
+      },
+      setSession: ({ user: nextUser, token: nextToken }) => {
+        localStorage.setItem("elegant_beauty_token", nextToken);
+        setToken(nextToken);
+        setUser(nextUser);
       },
       logout: () => {
         localStorage.removeItem("elegant_beauty_token");

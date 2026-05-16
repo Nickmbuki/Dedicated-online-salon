@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
-import { createBooking, fetchAvailability, fetchServices } from "../api/services";
+import { createBooking, createGuestBooking, fetchAvailability, fetchServices } from "../api/services";
 import { PageTransition } from "../components/PageTransition";
 import { useAuth } from "../context/AuthContext";
 
@@ -16,6 +16,7 @@ type BookingForm = {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
+  password: string;
   notes: string;
   address: string;
 };
@@ -25,8 +26,9 @@ const OTHER_SERVICE_VALUE = "__other__";
 
 export const BookingPage = () => {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const selectedFromUrl = params.get("service") ?? "";
-  const { user, token } = useAuth();
+  const { user, token, setSession } = useAuth();
   const queryClient = useQueryClient();
   const {
     data: services = [],
@@ -40,7 +42,8 @@ export const BookingPage = () => {
       appointmentDate: today,
       customerName: user?.fullName ?? "",
       customerPhone: user?.phone ?? "",
-      customerEmail: user?.email ?? ""
+      customerEmail: user?.email ?? "",
+      password: ""
     }
   });
 
@@ -74,10 +77,33 @@ export const BookingPage = () => {
         customerName: user?.fullName ?? "",
         customerPhone: user?.phone ?? "",
         customerEmail: user?.email ?? "",
+        password: "",
         startTime: "",
         notes: "",
         address: ""
       });
+    }
+  });
+
+  const guestBookingMutation = useMutation({
+    mutationFn: createGuestBooking,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["availability"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      setSession({ user: result.user, token: result.token });
+      reset({
+        serviceId,
+        customStyle: "",
+        appointmentDate,
+        customerName: result.user.fullName,
+        customerPhone: result.user.phone ?? "",
+        customerEmail: result.user.email,
+        password: "",
+        startTime: "",
+        notes: "",
+        address: ""
+      });
+      navigate("/dashboard");
     }
   });
 
@@ -90,7 +116,16 @@ export const BookingPage = () => {
     const customStyleNote = isCustomStyle ? `Custom style: ${values.customStyle.trim()}` : "";
     const notes = [customStyleNote, values.notes?.trim()].filter(Boolean).join("\n\n");
 
-    await bookingMutation.mutateAsync({
+    if (token) {
+      await bookingMutation.mutateAsync({
+        ...values,
+        serviceId: isCustomStyle ? customStyleService!.id : values.serviceId,
+        notes
+      });
+      return;
+    }
+
+    await guestBookingMutation.mutateAsync({
       ...values,
       serviceId: isCustomStyle ? customStyleService!.id : values.serviceId,
       notes
@@ -117,8 +152,8 @@ export const BookingPage = () => {
 
         <form className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm sm:p-8" onSubmit={onSubmit}>
           {!token ? (
-            <div className="mb-5 rounded-lg bg-pearl p-4 text-sm text-ink/75">
-              Please <Link className="font-bold text-rosewood" to="/login">login or register</Link> before confirming your booking.
+            <div className="mb-5 rounded-lg bg-pink-50 p-4 text-sm text-ink/75">
+              Book first. Your account will be created automatically when you confirm your booking.
             </div>
           ) : null}
           <label className="field-label">Service</label>
@@ -181,6 +216,12 @@ export const BookingPage = () => {
           </div>
           <label className="field-label">Email</label>
           <input className="field-input" type="email" {...register("customerEmail", { required: true })} />
+          {!token ? (
+            <>
+              <label className="field-label">Create password</label>
+              <input className="field-input" type="password" {...register("password", { required: !token, minLength: 8 })} />
+            </>
+          ) : null}
           <label className="field-label">Home service address</label>
           <input className="field-input" {...register("address", { required: true })} />
           <label className="field-label">Notes</label>
@@ -190,9 +231,15 @@ export const BookingPage = () => {
               <CheckCircle2 size={18} /> Appointment request created.
             </p>
           ) : null}
-          {bookingMutation.isError ? <p className="mt-4 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">That slot could not be booked. Please choose another time.</p> : null}
-          <button className="mt-6 w-full rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain disabled:opacity-50" type="submit" disabled={!token || bookingMutation.isPending}>
-            Confirm booking
+          {bookingMutation.isError || guestBookingMutation.isError ? (
+            <p className="mt-4 rounded-lg bg-rosewood/10 p-3 text-sm font-semibold text-rosewood">That slot could not be booked. Please choose another time.</p>
+          ) : null}
+          <button
+            className="mt-6 w-full rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain disabled:opacity-50"
+            type="submit"
+            disabled={bookingMutation.isPending || guestBookingMutation.isPending}
+          >
+            {bookingMutation.isPending || guestBookingMutation.isPending ? "Please wait..." : "Confirm booking"}
           </button>
         </form>
       </section>

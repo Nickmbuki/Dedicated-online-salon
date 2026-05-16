@@ -6,6 +6,7 @@ import { env } from "./config/env.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { bookingsRouter } from "./modules/bookings/booking.routes.js";
 import { servicesRouter } from "./modules/services/service.routes.js";
+import { supportRouter } from "./modules/support/support.routes.js";
 import { errorHandler } from "./middleware/error-handler.js";
 
 export const app = express();
@@ -34,5 +35,6 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/services", servicesRouter);
 app.use("/api/bookings", bookingsRouter);
+app.use("/api/support", supportRouter);
 
 app.use(errorHandler);

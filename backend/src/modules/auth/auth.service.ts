@@ -9,7 +9,7 @@ import { HttpError } from "../../middleware/error-handler.js";
 import type { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "./auth.schemas.js";
 import type { z } from "zod";
 
-const sanitizeUser = (user: User) => ({
+export const sanitizeUser = (user: User) => ({
   id: user.id,
   fullName: user.fullName,
   email: user.email,
@@ -17,10 +17,15 @@ const sanitizeUser = (user: User) => ({
   role: user.role
 });
 
-const issueToken = (user: User) => {
+export const issueToken = (user: User) => {
   const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"] };
   return jwt.sign({ sub: user.id, email: user.email, role: user.role }, env.JWT_SECRET, options);
 };
+
+export const createAuthSession = (user: User) => ({
+  user: sanitizeUser(user),
+  token: issueToken(user)
+});
 
 const hashResetToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
@@ -41,7 +46,7 @@ export const register = async (input: z.infer<typeof registerSchema>) => {
     })
     .returning();
 
-  return { user: sanitizeUser(user), token: issueToken(user) };
+  return createAuthSession(user);
 };
 
 export const login = async (input: z.infer<typeof loginSchema>) => {
@@ -55,7 +60,7 @@ export const login = async (input: z.infer<typeof loginSchema>) => {
     throw new HttpError(401, "Invalid email or password");
   }
 
-  return { user: sanitizeUser(user), token: issueToken(user) };
+  return createAuthSession(user);
 };
 
 export const forgotPassword = async (input: z.infer<typeof forgotPasswordSchema>) => {
@@ -117,5 +122,5 @@ export const resetPassword = async (input: z.infer<typeof resetPasswordSchema>) 
     throw new HttpError(400, "Reset token is invalid or expired");
   }
 
-  return { user: sanitizeUser(user), token: issueToken(user) };
+  return createAuthSession(user);
 };

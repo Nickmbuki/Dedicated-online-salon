@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { Booking, Service, Slot, User } from "../types";
+import type { Booking, BookingWithService, Service, Slot, SupportThread, User } from "../types";
 
 export const fetchServices = async () => {
   const { data } = await api.get<{ services: Service[] }>("/services");
@@ -52,8 +52,39 @@ export const createBooking = async (payload: {
   return data.booking;
 };
 
+export const createGuestBooking = async (payload: {
+  serviceId: string;
+  appointmentDate: string;
+  startTime: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  password: string;
+  notes?: string;
+  address?: string;
+}) => {
+  const { data } = await api.post<{ booking: Booking; service: Service; user: User; token: string }>("/bookings/guest", payload);
+  return data;
+};
+
+export const updateBooking = async (bookingId: string, payload: {
+  serviceId?: string;
+  appointmentDate?: string;
+  startTime?: string;
+  notes?: string | null;
+  address?: string | null;
+}) => {
+  const { data } = await api.patch<{ booking: BookingWithService }>(`/bookings/${bookingId}`, payload);
+  return data.booking;
+};
+
+export const cancelBooking = async (bookingId: string) => {
+  const { data } = await api.delete<{ booking: Booking }>(`/bookings/${bookingId}`);
+  return data.booking;
+};
+
 export const fetchBookings = async () => {
-  const { data } = await api.get<{ bookings: Array<{ booking: Booking; service: Service }> }>("/bookings");
+  const { data } = await api.get<{ bookings: BookingWithService[] }>("/bookings");
   return data.bookings;
 };
 
@@ -85,4 +116,41 @@ export const resetPasswordRequest = async (payload: { token: string; password: s
 export const fetchMe = async () => {
   const { data } = await api.get<{ user: User }>("/auth/me");
   return data.user;
+};
+
+export const fetchSupportThreads = async () => {
+  const { data } = await api.get<{ threads: SupportThread[] }>("/support/threads");
+  return data.threads;
+};
+
+export const fetchSupportInbox = async () => {
+  const { data } = await api.get<{ threads: SupportThread[] }>("/support/inbox");
+  return data.threads;
+};
+
+export const fetchSupportThread = async (threadId: string) => {
+  const { data } = await api.get<SupportThread>(`/support/threads/${threadId}`);
+  return data;
+};
+
+export const createSupportThread = async (payload: { subject: string; message: string }) => {
+  const { data } = await api.post<SupportThread>("/support/threads", payload);
+  return data;
+};
+
+export const replySupportThread = async (threadId: string, payload: { message: string }) => {
+  const { data } = await api.post<{ message: { id: string } }>(`/support/threads/${threadId}/messages`, payload);
+  return data.message;
+};
+
+export const submitGuestInquiry = async (payload: {
+  subject: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  message: string;
+  source: "customer_message" | "chatbot" | "contact_form" | "booking";
+}) => {
+  const { data } = await api.post<SupportThread>("/support/guest", payload);
+  return data;
 };

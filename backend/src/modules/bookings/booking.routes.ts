@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { asyncHandler } from "../../middleware/async-handler.js";
 import { requireAdmin, requireAuth } from "../../middleware/auth.js";
-import { availabilityQuerySchema, createBookingSchema, updateBookingStatusSchema } from "./booking.schemas.js";
+import {
+  availabilityQuerySchema,
+  createBookingSchema,
+  guestBookingSchema,
+  updateBookingSchema,
+  updateBookingStatusSchema
+} from "./booking.schemas.js";
 import * as bookingService from "./booking.service.js";
 
 export const bookingsRouter = Router();
@@ -34,6 +40,15 @@ bookingsRouter.post(
   })
 );
 
+bookingsRouter.post(
+  "/guest",
+  asyncHandler(async (req, res) => {
+    const payload = guestBookingSchema.parse(req.body);
+    const result = await bookingService.createGuestBooking(payload);
+    res.status(201).json(result);
+  })
+);
+
 bookingsRouter.patch(
   "/:id/status",
   requireAuth,
@@ -41,6 +56,25 @@ bookingsRouter.patch(
   asyncHandler(async (req, res) => {
     const payload = updateBookingStatusSchema.parse(req.body);
     const booking = await bookingService.updateBookingStatus(String(req.params.id), payload.status);
+    res.json({ booking });
+  })
+);
+
+bookingsRouter.patch(
+  "/:id",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const payload = updateBookingSchema.parse(req.body);
+    const booking = await bookingService.updateBookingForUser(String(req.params.id), req.user!.id, req.user!.role === "admin", payload);
+    res.json({ booking });
+  })
+);
+
+bookingsRouter.delete(
+  "/:id",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const booking = await bookingService.cancelBookingForUser(String(req.params.id), req.user!.id, req.user!.role === "admin");
     res.json({ booking });
   })
 );
