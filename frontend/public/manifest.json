@@ -1,0 +1,17 @@
+{
+  "name": "Elegant Beauty Style Suite",
+  "short_name": "Elegant Beauty",
+  "description": "Luxury salon booking for hairstyles, nails, skincare, events, children, and door-to-door service.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffeaf7",
+  "theme_color": "#30113f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

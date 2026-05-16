@@ -1,0 +1,22 @@
+services:
+  backend:
+    rootDirectory: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthcheckPath: /health
+    envVars:
+      NODE_ENV: production
+      PORT: ${{PORT}}
+      DATABASE_URL: ${{Postgres.DATABASE_URL}}
+      JWT_SECRET: ${{JWT_SECRET}}
+      JWT_EXPIRES_IN: 7d
+      CLIENT_ORIGIN: ${{CLIENT_ORIGIN}}
+      WORKING_HOURS_START: "09:00"
+      WORKING_HOURS_END: "18:00"
+      SLOT_DURATION_MINUTES: "60"
+  frontend:
+    rootDirectory: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      VITE_API_URL: ${{VITE_API_URL}}
