@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ToggleLeft, ToggleRight } from "lucide-react";
@@ -17,20 +18,23 @@ type ServiceForm = {
 
 export const AdminServicesManager = () => {
   const queryClient = useQueryClient();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { data: services = [] } = useQuery({ queryKey: ["admin-services"], queryFn: fetchAdminServices });
-  const { register, handleSubmit, reset } = useForm<ServiceForm>({
+  const { register, handleSubmit, reset, setValue, watch } = useForm<ServiceForm>({
     defaultValues: {
       category: "hair",
       durationMinutes: 60,
       isDoorToDoor: true
     }
   });
+  const currentImageUrl = watch("imageUrl");
 
   const createMutation = useMutation({
     mutationFn: createService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
       queryClient.invalidateQueries({ queryKey: ["services"] });
+      setImagePreview(null);
       reset({ category: "hair", durationMinutes: 60, isDoorToDoor: true, name: "", slug: "", description: "", priceCents: "", imageUrl: "" });
     }
   });
@@ -75,12 +79,40 @@ export const AdminServicesManager = () => {
         </select>
         <input className="field-input" type="number" placeholder="Duration minutes" {...register("durationMinutes", { required: true, valueAsNumber: true })} />
         <input className="field-input" type="number" placeholder="Price KES, leave empty for hairstyle services" {...register("priceCents")} />
-        <input className="field-input" placeholder="Image URL" {...register("imageUrl", { required: true })} />
+        <label className="lg:col-span-2">
+          <span className="field-label mt-0">Upload image</span>
+          <input
+            className="field-input"
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                setImagePreview(null);
+                setValue("imageUrl", "", { shouldValidate: true });
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = () => {
+                const result = String(reader.result ?? "");
+                setImagePreview(result);
+                setValue("imageUrl", result, { shouldValidate: true });
+              };
+              reader.readAsDataURL(file);
+            }}
+          />
+        </label>
+        {imagePreview || currentImageUrl ? (
+          <div className="overflow-hidden rounded-lg border border-rosewood/15 bg-porcelain lg:col-span-2">
+            <img className="h-56 w-full object-cover" src={imagePreview ?? currentImageUrl} alt="Service preview" />
+          </div>
+        ) : null}
         <textarea className="field-input min-h-24 lg:col-span-2" placeholder="Description" {...register("description", { required: true })} />
         <label className="flex items-center gap-3 text-sm font-semibold">
           <input type="checkbox" {...register("isDoorToDoor")} /> Door-to-door service
         </label>
-        <button className="rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain" type="submit">
+        <button className="rounded-full bg-ink px-5 py-3 text-sm font-bold text-porcelain disabled:opacity-50" type="submit" disabled={!currentImageUrl}>
           Add service
         </button>
       </form>

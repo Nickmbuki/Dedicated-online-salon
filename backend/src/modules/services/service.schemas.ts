@@ -9,7 +9,7 @@ export const createServiceSchema = z.object({
   description: z.string().min(10),
   priceCents: z.number().int().nonnegative().nullable().optional(),
   durationMinutes: z.number().int().positive().max(480),
-  imageUrl: z.string().url(),
+  imageUrl: z.string().min(1),
   isActive: z.boolean().default(true),
   isDoorToDoor: z.boolean().default(false)
 });
